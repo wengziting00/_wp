@@ -1,0 +1,254 @@
+<!DOCTYPE html> 
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>一頁式商店</title>
+  <style>
+    /*全站預設樣式 AI排版 */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f0f4ff, #d9e4ff);/* 漸層背景 */
+      padding: 40px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #333;
+    }
+    /* 主標題樣式*/
+    h1 {
+      font-size: 2.8rem;
+      margin-bottom: 15px;
+      color: #2a4d69;
+      text-shadow: 1px 1px 3px rgba(42, 77, 105, 0.4);
+    }
+    /* 商品列表：使用CSSGrid排列*/
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 25px;
+      width: 100%;
+      max-width: 960px;
+      margin-bottom: 50px;
+    }
+    /* 每個商品卡片*/
+    .product {
+      background: #fff;
+      padding: 25px 20px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1), 0 0 0 4px #d9e4ff;
+      text-align: center;
+      transition: 0.3s ease;
+      cursor: pointer;
+    }
+    /* 滑鼠滑過商品效果*/
+    .product:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), 0 0 0 5px #9bb9ff;
+    }
+    /* 商品標題*/
+    .product h3 {
+      font-size: 1.3rem;
+      margin-bottom: 12px;
+      color: #1b2e63;
+    }
+    /* 商品價格 */
+    .product p {
+      font-size: 1.1rem;
+      margin-bottom: 18px;
+      color: #2f4668;
+    }
+    /* 加入購物車按鈕 */
+    .product button {
+      background: #4a90e2;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 1rem;
+      box-shadow: 0 5px 12px rgba(74, 144, 226, 0.5);
+      transition: 0.25s ease;
+    }
+    /* 按鈕 hover 效果 */
+    .product button:hover {
+      background: #3c79c0;
+      box-shadow: 0 7px 18px rgba(60, 121, 192, 0.7);
+    }
+    /* 購物車容器 */
+    #cart {
+      background: #fff;
+      max-width: 640px;
+      width: 100%;
+      padding: 30px 35px;
+      border-radius: 20px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+    }
+
+    #cart h2 {
+      margin-bottom: 25px;
+      font-size: 2rem;
+      color: #2a4d69;
+    }
+    /* 購物車項目清單 */
+    #cart ul {
+      list-style: none;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 10px;
+      margin-bottom: 30px;
+    }
+
+    #cart li {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e3e9ff;
+      font-size: 1.1rem;
+      color: #3b4a72;
+      display: flex;
+      justify-content: space-between;
+    }
+    /* 清空按鈕 */
+    #clear-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 14px 30px;
+      border-radius: 35px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      box-shadow: 0 5px 15px rgba(231, 76, 60, 0.5);
+      cursor: pointer;
+      transition: 0.3s ease;
+      width: 100%;
+    }
+
+    #clear-btn:hover {
+      background-color: #c0392b;
+      box-shadow: 0 7px 22px rgba(192, 57, 43, 0.7);
+    }
+    /* 購物車的捲軸樣式 */
+    #cart ul::-webkit-scrollbar {
+      width: 7px;
+    }
+    #cart ul::-webkit-scrollbar-thumb {
+      background-color: #9bb9ff;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!--標題+ 用來放所有商品的區塊會由 JavaScript 動態插入-->
+  <h1>歡迎來小店看看</h1> 
+  <div class="product-list" id="product-list"></div>
+<!--購物車的區塊 商品清單 +總金額+清空按鈕+結帳按鈕 -->
+  <div id="cart">
+    <h2>🛒 你的購物車</h2>
+    <ul id="cart-items"></ul>
+    <div id="total-price" style="text-align: right; font-size: 1.2rem; font-weight: 700; margin-bottom: 20px;"></div>
+    <button id="clear-btn">清空全部</button>
+    <button id="checkout-btn" style="margin-top: 15px; background-color: #27ae60; box-shadow: 0 5px 15px rgba(39, 174, 96, 0.5);">購買</button>
+  </div>
+<!--定義商品 -->
+ <script>
+  const items = [
+    { id: 1, name: "手機", price: 29900 },
+    { id: 2, name: "電腦", price: 45900 },
+    { id: 3, name: "耳機", price: 3990 },
+    { id: 4, name: "滑鼠", price: 990 }
+  ];
+  //取得購物車資料 從localStorage
+  const listContainer = document.getElementById("product-list");
+  const cartContainer = document.getElementById("cart-items");
+  const totalDisplay = document.getElementById("total-price");
+  //儲存購物車到LocalStorage
+  const loadCart = () => JSON.parse(localStorage.getItem("cart")) || [];
+  const saveCart = (cart) => localStorage.setItem("cart", JSON.stringify(cart));
+  // 顯示所有商品
+  const showProducts = () => {
+    // 清空商品區塊
+    listContainer.innerHTML = "";
+    //商品陣列+迴圈+屬性id, name, price
+    items.forEach(({ id, name, price }) => {
+     // 建立一個新的div元素 +加上product的class
+      const productBox = document.createElement("div");
+      //顯示商品名稱+顯示價格讓數字多，+建立按鈕
+      productBox.className = "product";
+      productBox.innerHTML = `
+        <h3>${name}</h3>
+        <p>價格：$${price.toLocaleString()}</p>
+        <button onclick="addItem(${id})">加入購物車</button>
+      `;
+      listContainer.appendChild(productBox);
+    });
+  };
+  //加入商品到購物車
+  //宣告一個函式addItem，接收一個參數 id，代表想加入購物車的商品 ID
+  const addItem = (id) => {
+   //在items找到ID符合的商品
+    const selected = items.find(item => item.id === id);
+    //從localStorage得知購物車內容
+    const cart = loadCart();
+    // 加入選擇的商品
+    cart.push(selected);
+    //儲存
+    saveCart(cart);
+    //更新
+    updateCart();
+  };
+
+  const updateCart = () => {
+    //從localStorage得知購物車資料
+    const cart = loadCart();
+    // 清空購物車HTML
+    cartContainer.innerHTML = "";
+    // 如果購物車是空的，顯示購物車是空的喔～
+    if (!cart.length) {
+      cartContainer.innerHTML = "<li>購物車是空的喔～</li>";
+      totalDisplay.textContent = "";
+      return;
+    }
+    //錢變0
+    let total = 0;
+    // 處理購物車裡的每個商品
+    cart.forEach(({ name, price }) => {
+      total += price; //加總金額
+      const itemRow = document.createElement("li");//建立 <li> 元素
+      itemRow.innerHTML = `${name}<span>$${price.toLocaleString()}</span>`; //顯示名稱與價格
+      cartContainer.appendChild(itemRow);//加到購物車
+    });
+    //顯示總金額
+    totalDisplay.textContent = `總金額：$${total.toLocaleString()}`;
+  };
+
+  const clearAll = () => {
+    localStorage.removeItem("cart");  // 從localStorage移除cart
+    updateCart();//購物車變成空的
+  };
+
+  const checkout = () => {
+    const cart = loadCart(); //取得購物車
+    if (!cart.length) {  // 如果購物車是空的顯示購物車是空的喔～
+      alert("購物車是空的喔～");
+      return;
+    }
+    // 計算總金額
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    // 顯示感謝購買您的購買^^！總金額為...
+    alert(`感謝購買您的購買^^！總金額為 $${total.toLocaleString()}`);
+    // 清空購物車
+    clearAll();
+  };
+  //綁定清空按鈕
+  document.getElementById("clear-btn").addEventListener("click", clearAll);
+  //綁定購買按鈕
+  document.getElementById("checkout-btn").addEventListener("click", checkout);
+  // 初始化畫面
+  showProducts();
+  updateCart();
+</script>
