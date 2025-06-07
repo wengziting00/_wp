@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>{{ post.title }} — by {{ post.username }}</h1>
+  <p>{{ post.body }}</p>
+
+  <p>
+    <a href="/">← Back to all posts</a>
+  </p>
+
+  {% if user and user.username == post.username %}
+    <form action="/post/{{ post.id }}/delete" method="post" onsubmit="return confirm('Are you sure you want to delete this post?');">
+      <input type="submit" value="Delete Post" style="color: red;">
+    </form>
+  {% endif %}
+{% endblock %}
