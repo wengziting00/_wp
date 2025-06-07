@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Signup</h1>
+
+  {% if message %}
+    <p style="color: red;">{{ message }}</p>
+  {% endif %}
+
+  <form action="/signup" method="post">
+    <p><input type="text" placeholder="Username" name="username" required></p>
+    <p><input type="password" placeholder="Password" name="password" required></p>
+    <p><input type="email" placeholder="Email" name="email" required></p>
+    <p><input type="submit" value="Signup"></p>
+  </form>
+{% endblock %}
